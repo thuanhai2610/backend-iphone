@@ -47,9 +47,13 @@ async  updatePassword(userId: string, newPassword: string ){
      return updated;
   }
 
-  async updateProfile(userId: string, username: string, phone: string, address: string, avatarUrl: string){
+  async updateProfile(userId: string, username: string, phone: string, address: string, avatarUrl?: string): Promise<User | null>{
     const userObjectId = new Types.ObjectId(userId);
-    const update = await this.model.findByIdAndUpdate(userObjectId , {username, phone, address, avatarUrl} , {new: true}).lean().exec()
-    return update;
+
+    const update:Partial<User> =  {username, phone, address};
+    if (avatarUrl) {
+      update.avatarUrl = avatarUrl;
+    }
+    return this.model.findByIdAndUpdate(userObjectId, update, {new: true}).exec();
   }
 }
