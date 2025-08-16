@@ -8,7 +8,9 @@ const storage = new CloudinaryStorage({
       return {
         folder: 'avatars',
         allowed_formats: ['jpg', 'jpeg', 'png', 'gif'],
-        transformation: [{ width: 300, height: 300, crop: 'limit' }],
+       transformation: [
+  { quality: 'auto:best', fetch_format: 'auto' } // giữ chất lượng tốt
+]
       };
     },
   });

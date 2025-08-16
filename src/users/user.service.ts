@@ -56,4 +56,10 @@ async  updatePassword(userId: string, newPassword: string ){
     }
     return this.model.findByIdAndUpdate(userObjectId, update, {new: true}).exec();
   }
+
+  async profile(userId: string) {
+    const userObjectId = new Types.ObjectId(userId)
+    const user = await this.model.findById(userObjectId).lean();
+    return user;
+  }
 }

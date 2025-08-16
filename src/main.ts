@@ -7,6 +7,12 @@ async function bootstrap() {
   const PORT = process.env.PORT || 3000;
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
+   app.enableCors({
+    origin: process.env.FE,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  });
   app.use(express.json())
   app.useGlobalInterceptors();
   app.use(express.urlencoded({extended:true}));
