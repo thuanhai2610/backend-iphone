@@ -8,7 +8,8 @@ import { ColorIphone } from 'src/features/product/enums/color.enum';
 import storage from 'src/stores/cloudinary-store';
 @Schema({timestamps: true, versionKey: false})
 export class Order {
-  @Prop({ required: true })
+
+  @Prop({ required: true , ref: 'Payment'})
   userOrderId: Types.ObjectId;
 
   @Prop({ type: [
@@ -41,6 +42,11 @@ export class Order {
 
   @Prop({ required: true })
   shippingAddress: string;
+
+   @Prop({ required: true })fullName: string;
+       @Prop({ required: true })city: string;
+       @Prop({ required: true })district: string;
+     @Prop({ required: true })ward: string;
 }
 export type OrderDocument = Order & Document;
 export const OrderSchema = SchemaFactory.createForClass(Order)

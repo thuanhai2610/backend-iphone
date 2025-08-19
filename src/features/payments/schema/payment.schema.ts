@@ -4,7 +4,7 @@ import { PaymentMethod } from "src/features/order/enums/payment.enum";
 
 @Schema({timestamps: true, versionKey: false})
 export class Payment {
-    @Prop({}) 
+    @Prop({required: true, ref: 'Order'}) 
     orderId: Types.ObjectId;
 
     @Prop({required: true, enum: Object.values(PaymentMethod)})

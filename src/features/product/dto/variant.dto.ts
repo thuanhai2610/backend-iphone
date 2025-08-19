@@ -20,4 +20,6 @@ export class VariantDto {
   price: number
 
   images: String;
+
+  
 }

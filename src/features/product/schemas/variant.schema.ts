@@ -14,8 +14,8 @@ export class Variant {
     @Prop({ required: true, default: 0 , min: 0 })
     price: number;
   
-    @Prop({ required: true })
-    images: String;
+   @Prop({ required: true}) // Lưu nhiều ảnh
+  images: String;
 
     _id: Types.ObjectId
 }

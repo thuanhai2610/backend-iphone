@@ -4,9 +4,14 @@ import mongoose, { Document, Mongoose, Types } from "mongoose";
 export type UserDocument = User & Document
 @Schema({timestamps: true})
 export class User {
-    @Prop({require: true}) email: string;
-    @Prop({required : true}) password: string;
+    @Prop({require: true})  email: string;
+    @Prop() password: string;
     @Prop() username: string;
+        @Prop()fullName: string;
+       @Prop()city: string;
+       @Prop()district: string;
+     @Prop()ward: string;
+    
     @Prop({default: 'user'}) role: string;
     @Prop({default: false}) isVerified: boolean;
     @Prop() phone: string;

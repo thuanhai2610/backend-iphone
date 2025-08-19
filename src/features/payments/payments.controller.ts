@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query, Res } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Response } from 'express';
 
 @Controller('payments')
 export class PaymentsController {
@@ -11,16 +12,19 @@ export class PaymentsController {
   @UseGuards(AuthGuard)
   @Post()
   create(@Req() req : any, @Body() createPaymentDto: CreatePaymentDto) {
-    return this.paymentsService.create(req.user['userId'], createPaymentDto);
+    return this.paymentsService.createRfa(req.user['userId'], createPaymentDto);
   }
 
    @Get('vnpay/return')
-  async handleVnpayReturn(@Query() query: any) {
+  async handleVnpayReturn(@Query() query: any, @Res() res: Response) {
     const result = await this.paymentsService.handleVnpayReturn(query);
+
     if (result.status === 'Completed') {
-      return { message: 'Payment successful', paymentId: result.paymentId,  totalAmount: result.totalAmount, };
+      const redirectUrl = `http://localhost:3000/checkout`;
+       return res.redirect(redirectUrl);
     } else {
-      return { message: 'Payment failed', code: result.message };
+      const redirectUrl = `http://localhost:3000/checkout`;
+       return res.redirect(redirectUrl);
     }
   }
 
