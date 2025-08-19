@@ -11,14 +11,16 @@ import { RefreshTokenService } from 'src/tokens/refresh-token.service';
 import { UserService } from 'src/users/user.service';
 import * as bcrypt from 'bcrypt';
 import { Types } from 'mongoose';
+import { OAuth2Client } from 'google-auth-library';
 @Injectable()
 export class AuthService {
+  private googleClient: OAuth2Client;
   constructor(
     private jwtService: JwtService,
     private otpService: OtpService,
     private userService: UserService,
     private refreshTokenService: RefreshTokenService,
-  ) {}
+  ) { this.googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);}
 
   async createUser(email: string, password: string, role: string = 'user') {
     const existedUser = await this.userService.findByEmail(email);
@@ -101,7 +103,7 @@ export class AuthService {
     }
   }
 
-  async resetPassword(userId: string, email: string, code: string, newPassword: string){
+  async resetPassword( email: string, code: string, newPassword: string){
      const existedUser = await this.userService.findByEmail(email);
      if (!existedUser) {
        throw new BadRequestException('User not found')
@@ -111,7 +113,31 @@ export class AuthService {
        throw new UnauthorizedException('Invalid code');
      }
      const hashedNewPassword = await bcrypt.hash(newPassword, 10)
-    const resetpass = await this.userService.updatePassword(userId, hashedNewPassword)
+    const resetpass = await this.userService.updatePassword(email, hashedNewPassword)
     return {message : 'Reset pass succesfully', resetpass}
+  }
+
+  async googleLogin(user: any) {
+    if (!user) {
+      throw new UnauthorizedException('Google login failed');
+    }
+    let existingUser = await this.userService.findByEmail(user.email);
+
+    if (!existingUser) {
+      existingUser = await this.userService.createGoogle({
+        email: user.email,
+        fullName: user.fullName,
+        avatarUrl: user.picture,
+        // provider: 'google',
+        role: 'user',
+        isVerified: true,
+      });
+    }
+    const payload = { userId: existingUser._id, email: existingUser.email, role: existingUser.role };
+    return {
+      access_token: this.jwtService.sign({payload}, {expiresIn: "7d" , secret: process.env.JWT_SECRET,}),
+      refreshToken: this.jwtService.sign({userId: existingUser._id}, {expiresIn: "7d" , secret: process.env.JWT_SECRET,}),
+      user: existingUser,
+    };
   }
 }

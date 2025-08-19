@@ -1,11 +1,9 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from './schemas/product.schema';
 import { Model, PipelineStage, Types } from 'mongoose';
-import Redis from 'ioredis';
-import { UpdateItemVariantDto } from './dto/update-varian.dto';
+
 
 @Injectable()
 export class ProductService {
@@ -55,18 +53,14 @@ async create(createProductDto: CreateProductDto, files: Express.Multer.File[]) {
     
     return {
       ...v, 
-      images: imageUrl // Single string to match schema
+      images: imageUrl
     };
   });
-
-  // Use the parsed 'varian' instead of 'createProductDto.varian'
   const totalProduct = varian.reduce((sum, v) => sum + v.quantity, 0);
   
   if (totalProduct > createProductDto.stock) {
     throw new BadRequestException('Sản phẩm bạn thêm lớn hơn tổng sản phẩm.');
   }
-  
-  // Safe JSON parsing for specs
   let specs;
   try {
     if (typeof createProductDto.specs === 'string') {

@@ -12,12 +12,13 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from 'src/common/jwt.strategy';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthGuard } from './auth.guard';
+import { GoogleStrategy } from './goggle/goggle.strategy';
 
 
 @Module({
   imports: [ConfigModule.forRoot({isGlobal: true}),JwtModule.register({secret: process.env.JWT_SECRET}), PassportModule, forwardRef(()=>UserModule), OtpModule, RefreshModule],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, AuthGuard],
+  providers: [AuthService, JwtStrategy, AuthGuard, GoogleStrategy],
   exports: [AuthGuard, JwtModule]
 })
 export class AuthModule {

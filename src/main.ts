@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as express from 'express';
+import { AllExceptionsFilter } from './common/filter/all-exceptions.filter';
 
 async function bootstrap() {
   const PORT = process.env.PORT || 3000;
@@ -13,6 +14,7 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   });
+  app.useGlobalFilters(new AllExceptionsFilter())
   app.use(express.json())
   app.useGlobalInterceptors();
   app.use(express.urlencoded({extended:true}));

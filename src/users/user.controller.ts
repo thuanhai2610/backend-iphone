@@ -13,12 +13,17 @@ export class UserController{
     @UseInterceptors(FileInterceptor('avatar' , {storage}))
     @Put('profile')
     async updateProfile(@Req() req: any, @Body() dto: UpdateUserDto, @UploadedFile() avatarField? : Express.Multer.File) {
-        return this.userService.updateProfile(req.user['userId'], dto.username, dto.phone, dto.address, avatarField?.path)
+        return this.userService.updateProfile(req.user['userId'], dto.username, dto.fullName, dto.city, dto.district, dto.ward, dto.phone, dto.address, avatarField?.path)
     }
 
     @UseGuards(AuthGuard)
     @Get('me')
     async profile(@Req() req:any){
         return this.userService.profile(req.user['userId'])
+    }
+
+    @Get('top')
+    async top(){
+        return this.userService.findTop()
     }
 }

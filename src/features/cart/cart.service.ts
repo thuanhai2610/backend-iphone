@@ -87,11 +87,46 @@ export class CartService {
 
   async getCart(userId: string) {
     const userObjectId = new Types.ObjectId(userId);
-    return this.model.findOne({ userId: userObjectId });
-  }
-
-  findAll() {
-    return `This action returns all cart`;
+    let cartExisted = await this.model.findOne({ userId: userObjectId });
+    if (!cartExisted) {
+      cartExisted = await this.model.create({
+        userId: userObjectId,
+        items: [],
+        totalPriceInCart: 0,
+      });
+    }
+    for (let i = cartExisted.items.length - 1; i >= 0; i--) {
+      const item = cartExisted.items[i];
+      if (!item?.product) {
+        cartExisted.items.splice(i, 1);
+        continue;
+      }
+      const product = await this.productModel.findById(item.product);
+      if (!product) {
+        cartExisted.items.splice(i, 1);
+        continue;
+      }
+      const variant = product.varian.find(
+        (v) => v.color === item.variant.color,
+      );
+      if (!variant || product.stock <= 0) {
+        cartExisted.items.splice(i, 1);
+        continue;
+      }
+      if (variant.quantity < item.variant.quantity) {
+        cartExisted.items.splice(i, 1);
+        continue;
+      }
+      item.totalPrice = variant.price * item.variant.quantity;
+      item.name = product.name;
+      item.storage = product.storage;
+      cartExisted.totalPriceInCart = cartExisted.items.reduce(
+        (sum, item) => sum + item.totalPrice,
+        0,
+      );
+    }
+    await cartExisted.save();
+    return cartExisted;
   }
 
   findOne(id: number) {
@@ -227,11 +262,7 @@ export class CartService {
     } else if (action === 'decrement') {
       item.variant.quantity = Math.max(item.variant.quantity - 1, 1);
     }
-
-    // Recalculate item total price
     item.totalPrice = item.variant.price * item.variant.quantity;
-
-    // Recalculate total cart price
     cartUser.totalPriceInCart = cartUser.items.reduce(
       (sum, i) => sum + i.totalPrice,
       0,
@@ -240,4 +271,5 @@ export class CartService {
     await cartUser.save();
     return cartUser;
   }
+
 }

@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId, Types } from 'mongoose';
+import { Model, ObjectId, PipelineStage, Types } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
@@ -18,7 +18,9 @@ export class UserService {
   create(user: Partial<User>){
     return this.model.create(user)
   }
-
+ createGoogle(user: Partial<User>){
+    return this.model.create(user)
+  }
    findByEmail(email: string){
     return this.model.findOne({email}).exec();
   }
@@ -36,9 +38,8 @@ export class UserService {
     return this.model.findById(userObjectId).exec();
   }
 
-async  updatePassword(userId: string, newPassword: string ){
-    const userObjectId = new Types.ObjectId(userId);
-    const updated = await this.model.findByIdAndUpdate(userObjectId, {
+async  updatePassword(email: string, newPassword: string ){
+    const updated = await this.model.findOneAndUpdate(   { email },   {
         password: newPassword
     }, {new: true});
     if (!updated) {
@@ -47,10 +48,10 @@ async  updatePassword(userId: string, newPassword: string ){
      return updated;
   }
 
-  async updateProfile(userId: string, username: string, phone: string, address: string, avatarUrl?: string): Promise<User | null>{
+  async updateProfile(userId: string, username: string, fullName: string, city: string, district: string, ward: string, phone: string, address: string, avatarUrl?: string): Promise<User | null>{
     const userObjectId = new Types.ObjectId(userId);
 
-    const update:Partial<User> =  {username, phone, address};
+    const update:Partial<User> =  {username,fullName, city, district, ward, phone, address};
     if (avatarUrl) {
       update.avatarUrl = avatarUrl;
     }
@@ -61,5 +62,33 @@ async  updatePassword(userId: string, newPassword: string ){
     const userObjectId = new Types.ObjectId(userId)
     const user = await this.model.findById(userObjectId).lean();
     return user;
+  }
+
+  async findTop(){
+    const pipeline : PipelineStage[] =[ 
+      {$lookup : {
+        from : 'orders',
+        localField: '_id',
+        foreignField: 'userOrderId',
+        as :'orders'
+      }    
+    }, 
+    {$addFields: {shippedOrder : {
+      $filter: {
+        input: '$orders',
+        as: 'o',cond : {$eq : ['$$o.status' , 'Delivered']}
+      }
+    }}}, {$addFields: {totalSpend: {$sum : '$shippedOrder.totalPriceInOrder'}}},
+    {$project : {
+      email: 1,
+      avatarUrl: 1,
+      orderCounts : {$size: '$orders'},
+      totalSpend: 1
+    }},
+    {$sort: {orderCounts: -1}},
+    {$limit: 5}
+    ]
+    const data = await this.model.aggregate(pipeline).exec();
+    return data;
   }
 }

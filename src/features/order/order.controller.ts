@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -18,15 +18,22 @@ export class OrderController {
   findAll(@Req() req: any) {
     return this.orderService.findAll(req.user['userId']);
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
+  @UseGuards(JwtAuthGuard)
+  @Get('checkout')
+  findOne(@Req() req: any) {
+    return this.orderService.findOne(req.user['userId']);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.orderService.update(+id, updateOrderDto);
+  @UseGuards(JwtAuthGuard)
+  @Get('dashboard')
+async  getDashboard() {
+    return this.orderService.dashboard();
+  }
+
+ @Get('revenue/:period')
+  async getRevenue(@Param('period') period: "day" | "month" | "year",   @Query("startDate") startDate?: string,
+  @Query("endDate") endDate?: string) {
+    return this.orderService.getRevenue(period, startDate, endDate);
   }
 
   @Delete(':id')
