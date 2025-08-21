@@ -10,10 +10,11 @@ import { ProductModule } from './features/product/product.module';
 import { CartModule } from './features/cart/cart.module';
 import { OrderModule } from './features/order/order.module';
 import { PaymentsModule } from './features/payments/payments.module';
+import { AdminModule } from './features/admin/admin.module';
 // import { RedisCacheInterceptor } from './intercepter/cache.interceptor';
 // import { RedisModule } from './redis/redis.module';
 @Module({
-  imports: [ConfigModule.forRoot({isGlobal: true}), MongooseModule.forRoot(process.env.MONGODB!), AuthModule, ProductModule, CartModule, OrderModule, PaymentsModule,
+  imports: [ConfigModule.forRoot({isGlobal: true}), MongooseModule.forRoot(process.env.MONGODB!), AuthModule, ProductModule, CartModule, OrderModule, PaymentsModule, AdminModule
     // RedisModule
   ],
   controllers: [AppController],

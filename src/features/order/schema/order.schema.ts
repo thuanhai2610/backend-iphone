@@ -47,6 +47,7 @@ export class Order {
        @Prop({ required: true })city: string;
        @Prop({ required: true })district: string;
      @Prop({ required: true })ward: string;
+     @Prop({ required: true })email: string;
 }
 export type OrderDocument = Order & Document;
 export const OrderSchema = SchemaFactory.createForClass(Order)

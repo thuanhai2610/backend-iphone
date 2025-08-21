@@ -71,6 +71,7 @@ export class AuthService {
     const access = this.jwtService.sign({userId: existedUser._id, email: existedUser.email, role: existedUser.role}, {expiresIn: '7d'});
     const refresh = this.jwtService.sign({userId: existedUser._id}, {expiresIn: '30d'});
     await this.refreshTokenService.create(String(existedUser._id), refresh);
+    
     return {message: 'Login successfully', access_token: access, refresh_token: refresh};
   }
 

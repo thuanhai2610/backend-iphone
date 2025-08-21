@@ -14,7 +14,7 @@ import { AuthGuard } from './auth.guard';
 import { ChangePasswordDto } from './dto/change-pass.dto';
 import { ResetPasswordDto } from './dto/reset-pass.dto';
 import { GoogleAuthGuard } from './goggle/google-auth';
-
+import { Response } from 'express';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -34,8 +34,24 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() body: { email: string; password: string }) {
-    return this.authService.login(body.email, body.password);
+  async login(@Body() body: { email: string; password: string }, @Res({ passthrough: true }) res: Response,) {
+    const { message, access_token, refresh_token } = await this.authService.login(body.email, body.password);
+ res.cookie('authToken',  access_token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+  });
+
+  res.cookie('refreshToken', refresh_token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 ngày
+  });
+    return {message, access_token, refresh_token}
   }
   @UseGuards(AuthGuard)
   @Put('change_password')
@@ -65,7 +81,6 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@Req() req, @Res() res) {
     const user = req.user;
-    console.log('Google user:', req.user);
     const data = await this.authService.googleLogin(user);
     const access_token = user.accessToken;
     const redirectUrl = `http://localhost:3000/?token=${access_token}`;
