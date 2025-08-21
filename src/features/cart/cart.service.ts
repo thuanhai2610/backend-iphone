@@ -129,14 +129,6 @@ export class CartService {
     return cartExisted;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cart`;
-  }
-
-  update(id: number, updateCartDto: UpdateCartDto) {
-    return `This action updates a #${id} cart`;
-  }
-
   async removeFromCart(userId: string, itemId: string) {
     const userObjectId = new Types.ObjectId(userId);
     const cart = await this.model.findOne({ userId: userObjectId });

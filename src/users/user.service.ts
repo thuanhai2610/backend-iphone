@@ -85,7 +85,7 @@ async  updatePassword(email: string, newPassword: string ){
       orderCounts : {$size: '$orders'},
       totalSpend: 1
     }},
-    {$sort: {orderCounts: -1}},
+    {$sort: {totalSpend: -1}},
     {$limit: 5}
     ]
     const data = await this.model.aggregate(pipeline).exec();

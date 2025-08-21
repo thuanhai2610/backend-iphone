@@ -9,10 +9,6 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
   @UseGuards(JwtAuthGuard)
 
-  @Post('create')
-  create(@Req() req: any,  @Body() createOrderDto: CreateOrderDto) {
-    return this.orderService.create(req.user['userId'], createOrderDto);
-  }
   @UseGuards(JwtAuthGuard)
   @Get()
   findAll(@Req() req: any) {
@@ -24,20 +20,4 @@ export class OrderController {
     return this.orderService.findOne(req.user['userId']);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('dashboard')
-async  getDashboard() {
-    return this.orderService.dashboard();
-  }
-
- @Get('revenue/:period')
-  async getRevenue(@Param('period') period: "day" | "month" | "year",   @Query("startDate") startDate?: string,
-  @Query("endDate") endDate?: string) {
-    return this.orderService.getRevenue(period, startDate, endDate);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderService.remove(+id);
-  }
 }
