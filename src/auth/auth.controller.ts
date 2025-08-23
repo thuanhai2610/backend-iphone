@@ -36,20 +36,20 @@ export class AuthController {
   @Post('login')
   async login(@Body() body: { email: string; password: string }, @Res({ passthrough: true }) res: Response,) {
     const { message, access_token, refresh_token } = await this.authService.login(body.email, body.password);
- res.cookie('authToken',  access_token, {
+ res.cookie('access_token',  access_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     path: '/',
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+    maxAge: 15 * 60 * 1000, 
   });
 
-  res.cookie('refreshToken', refresh_token, {
+  res.cookie('refresh_token', refresh_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     path: '/',
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 ngày
+    maxAge: 30 * 24 * 60 * 60 * 1000, 
   });
     return {message, access_token, refresh_token}
   }
@@ -82,8 +82,20 @@ export class AuthController {
   async googleAuthRedirect(@Req() req, @Res() res) {
     const user = req.user;
     const data = await this.authService.googleLogin(user);
-    const access_token = user.accessToken;
-    const redirectUrl = `http://localhost:3000/?token=${access_token}`;
+    const access_token = data.access_token;
+    const redirectUrl = `${process.env.FE}/?token=${access_token}`;
     return res.redirect(redirectUrl);
+  }
+
+  @Post('refresh_token')
+  async newAccessToken(@Body('refresh_token') refresh_token: string,  @Res({ passthrough: true }) res: Response){
+    const {access_token} = await this.authService.refresh_token(refresh_token);
+    res.cookie('access_token',  access_token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+    maxAge: 15 * 60 * 1000, 
+  });
   }
 }

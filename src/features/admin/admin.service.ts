@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage, Types } from 'mongoose';
@@ -149,10 +149,9 @@ export class AdminService {
     createProductDto: CreateProductDto,
     files: Express.Multer.File[],
   ) {
-    let varian;
+    let varian: any[];
     try {
       const varianData = createProductDto.varian as any;
-
       if (typeof varianData === 'string') {
         let cleanedJson = varianData
           .trim()
@@ -222,8 +221,14 @@ export class AdminService {
       stock: totalProduct,
       specs: specs,
     };
+   try {
+  const created = await this.productModel.create(productData);
+  return created;
+} catch (err) {
+  console.error('Mongoose create error:', err);
+  throw new InternalServerErrorException('Server error while creating product');
+}
 
-    return this.productModel.create(productData);
   }
 
   async remove(id: string) {

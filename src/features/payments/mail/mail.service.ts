@@ -1,7 +1,6 @@
 // src/mail/mail.service.ts
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class MailService {
