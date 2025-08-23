@@ -2,5 +2,8 @@ export  enum ColorIphone {
     Silver = 'Silver',
     Yellow = 'Yellow',
     White = 'White',
-    Black = 'Black'
+    Black = 'Black',
+    Purple = 'Purple',
+    Blue = 'Blue',
+    Pink = 'Pink',
 }

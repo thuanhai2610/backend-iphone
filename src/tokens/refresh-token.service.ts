@@ -15,4 +15,8 @@ export class RefreshTokenService{
     async verify(userId: string, token: string){
         return this.model.findOne({userId, token})
     }
+
+    async findToken(refresh_token: string){
+        return this.model.findOne({token: refresh_token})
+    }
 }

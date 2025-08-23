@@ -83,15 +83,14 @@ export class PaymentsService {
         status: PaymentStatus.Completed,
       });
       await this.reduceStock(cart);
-      await this.cartModel.updateOne(
+     this.cartModel.updateOne(
         { userId: order.userOrderId },
         { $set: { items: [], totalPriceInCart: 0 } },
       );
       await this.orderModel.findByIdAndUpdate(payment.orderId, {
         status: StatusOrder.Shipped,
       });
-    await this.paymentRepository.sendOrderToEmail(order);
-
+      this.paymentRepository.sendOrderToEmail(order);
       return { status: 'Completed', paymentId, amount: totalAmount };
     } else {
       await this.paymentModel.findByIdAndUpdate(paymentId, {

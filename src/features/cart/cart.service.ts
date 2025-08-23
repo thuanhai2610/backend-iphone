@@ -52,7 +52,7 @@ export class CartService {
       const currentQuantity = cart.items[itemIndex].variant.quantity;
       if (currentQuantity + quantity > variantInfo.quantity) {
         throw new BadRequestException(
-          `So luong vuot qua hang ton! Chi con ${variantInfo.quantity}`,
+          `Quantity exceeded stock! Only ${variantInfo.quantity} items left`,
         );
       }
       cart.items[itemIndex].variant.quantity = currentQuantity + quantity;
@@ -61,7 +61,7 @@ export class CartService {
     } else {
       if (quantity > variantInfo.quantity) {
         throw new BadRequestException(
-          `So luong vuot qua hang ton! Chi con ${variantInfo.quantity}`,
+          `Quantity exceeded stock! Only ${variantInfo.quantity} items left`,
         );
       }
       cart.items.push({
@@ -179,7 +179,7 @@ export class CartService {
       const currentQuantity = cart.items[itemIndex].variant.quantity;
       if (currentQuantity + quantity > variantInfo.quantity) {
         throw new BadRequestException(
-          `Số lượng vượt quá hàng tồn! Chỉ còn ${variantInfo.quantity} sản phẩm`,
+          `Quantity exceeded stock! Only ${variantInfo.quantity} items left`,
         );
       }
       cart.items[itemIndex].variant.quantity = currentQuantity + quantity;
@@ -188,7 +188,7 @@ export class CartService {
     } else {
       if (quantity > variantInfo.quantity) {
         throw new BadRequestException(
-          `Số lượng vượt quá hàng tồn! Chỉ còn ${variantInfo.quantity} sản phẩm`,
+          `Quantity exceeded stock! Only ${variantInfo.quantity} items left`,
         );
       }
       cart.items.push({
@@ -247,7 +247,7 @@ export class CartService {
     if (action === 'increment') {
       if (item.variant.quantity + 1 > variantInfo.quantity) {
         throw new BadRequestException(
-          `Số lượng vượt quá hàng tồn! Chỉ còn ${variantInfo.quantity} sản phẩm`,
+          `Quantity exceeded stock! Only ${variantInfo.quantity} items left`,
         );
       }
       item.variant.quantity += 1;

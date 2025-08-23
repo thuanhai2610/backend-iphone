@@ -20,10 +20,10 @@ export class PaymentsController {
     const result = await this.paymentsService.handleVnpayReturn(query);
 
     if (result.status === 'Completed') {
-      const redirectUrl = `http://localhost:3000/checkout`;
+      const redirectUrl = `${process.env.FE}/checkout`;
        return res.redirect(redirectUrl);
     } else {
-      const redirectUrl = `http://localhost:3000/checkout`;
+      const redirectUrl = `${process.env.FE}/checkout`;
        return res.redirect(redirectUrl);
     }
   }

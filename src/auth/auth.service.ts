@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -136,9 +137,25 @@ export class AuthService {
     }
     const payload = { userId: existingUser._id, email: existingUser.email, role: existingUser.role };
     return {
-      access_token: this.jwtService.sign({payload}, {expiresIn: "7d" , secret: process.env.JWT_SECRET,}),
+      access_token: this.jwtService.sign(payload, {expiresIn: "7d" , secret: process.env.JWT_SECRET,}),
       refreshToken: this.jwtService.sign({userId: existingUser._id}, {expiresIn: "7d" , secret: process.env.JWT_SECRET,}),
       user: existingUser,
     };
+  }
+
+  async refresh_token(refresh_token: string){
+       const tokenExist = await this.refreshTokenService.findToken(refresh_token);
+       if(!tokenExist) throw new NotFoundException('Refresh Token not found!');
+       try {
+         const payload: any = this.jwtService.verify(refresh_token);
+         const user = await this.userService.findById(payload.userId);
+         if(!user) throw new NotFoundException('User not found!');
+         const match = await this.refreshTokenService.verify(payload.userId.toString(), refresh_token); 
+         if(!match) throw new Error('Not match user and token');
+          const newAccessToken = this.jwtService.sign({userId: user._id, email: user.email, role: user.role}, {expiresIn: '15m'});
+          return { access_token: newAccessToken} 
+       } catch (error) {
+         throw new UnauthorizedException('Invalid token!')
+       }
   }
 }

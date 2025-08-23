@@ -22,10 +22,13 @@ async  findAll(page: number, limit : number, filters: any) {
    if (filters.storage) {
     query.storage = {$regex: filters.storage, $options: 'i'}
   }
+  if(filters.category){
+     query.$text = {$search : filters.category}
+  }
      const pipeline : PipelineStage[]= [
        {$match: query},
        {$addFields: {minPrice: {$min: "$varian.price"}, maxPrice: {$max: "$varian.price"}}},
-       {$sort : filters.sort ==='asc' ? {minPrice: 1} : {maxPrice : -1}},
+       {$sort : filters.sort ==='asc' ? {minPrice: 1, _id: 1} : {maxPrice : -1, _id: 1}},
         {$skip:skip},
         {$limit: limit}
       ];
@@ -40,7 +43,7 @@ async  findAll(page: number, limit : number, filters: any) {
   }
 
  async category(q: string){
-   const search = await this.model.findOne( {
+   const search = await this.model.find( {
     $text: {$search: q}
   }).lean().exec();
   return search;

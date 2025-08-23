@@ -28,6 +28,7 @@ export class ProductController {
     @Query('page') page: string,
     @Query('limit') limit: string,
     @Query('name') name?: string,
+    @Query('category') category?: string,
     @Query('color') color?: string,
     @Query('storage') storage?: string,
     @Query('sort') sort?: string,
@@ -36,6 +37,7 @@ export class ProductController {
     const limitNumber = parseInt(limit) || 10;
     return this.productService.findAll(pageNumber, limitNumber, {
       name,
+      category,
       color,
       storage,
       sort,
